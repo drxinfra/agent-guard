@@ -1,0 +1,10 @@
+{
+  "name": "agent-guard",
+  "version": "0.1.0",
+  "description": "Safer AI agents on real servers: asks before commands that change a system (systemctl, kubectl, helm, terraform, ansible, cloud CLIs, SQL writes, docker prune, force push...), blocks disk wipes, masks secrets in tool output and keeps a journal of executed commands. Profiles prod, test, off.",
+  "author": { "name": "drxinfra", "url": "https://drxinfra.ru" },
+  "homepage": "https://github.com/drxinfra/agent-guard",
+  "repository": "https://github.com/drxinfra/agent-guard",
+  "license": "Apache-2.0",
+  "keywords": ["security", "guardrails", "devops", "sre", "hooks", "secrets", "masking", "audit", "kubernetes", "terraform", "ansible"]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "agent-guard",
+  "description": "agent-guard by drxinfra: guardrails for AI agents on real servers",
+  "owner": { "name": "drxinfra", "url": "https://drxinfra.ru" },
+  "plugins": [
+    {
+      "name": "agent-guard",
+      "source": "./",
+      "description": "Asks before state-changing commands, blocks disk wipes, masks secrets in tool output, journals executed commands. Profiles prod, test, off.",
+      "version": "0.1.0",
+      "category": "security",
+      "tags": ["security", "devops", "guardrails", "secrets", "audit"]
+    }
+  ]
+}
