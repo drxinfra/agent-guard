@@ -212,9 +212,28 @@ def _http(part):
     return None
 
 
+# Heredoc bodies that only feed a file (cat > f <<EOF, tee f <<EOF) are data, not commands.
+# Bodies fed to shells, ssh, database clients and the like are still checked.
+HEREDOC = re.compile(r"<<-?[ \t]*(['\"]?)([A-Za-z_][\w.-]*)\1[^\n]*\n(.*?)\n[ \t]*\2[ \t]*(?=\n|$)", re.S)
+DATA_SINKS = re.compile(r"^\s*(?:sudo\s+(?:-\S+\s+)*)?(?:cat|tee|printf|echo)\b")
+
+
+def strip_data_heredocs(cmd):
+    def repl(m):
+        whole = m.group(0)
+        line_start = cmd.rfind("\n", 0, m.start()) + 1
+        head = re.split(r"[;&|]\s*", cmd[line_start:m.start()])[-1]
+        tail = whole[:whole.index("\n")]  # rest of the marker line, e.g. "<<'EOF' | bash"
+        piped_to_runner = re.search(r"\|\s*(?:sudo\s+(?:-\S+\s+)*)?(?:\w*sh|ssh|psql|mysql|sqlcmd|mongosh|redis-cli|python\d?|perl|ruby|node)\b", tail)
+        if DATA_SINKS.match(head) and not piped_to_runner:
+            return tail + "\n" + m.group(2)
+        return whole
+    return HEREDOC.sub(repl, cmd)
+
+
 def scan(cmd):
     """All matches of a command: (deny, destructive, change) lists of reasons."""
-    text = SAFE_REDIRECT.sub(" ", cmd)
+    text = SAFE_REDIRECT.sub(" ", strip_data_heredocs(cmd))
     deny = [why for why, rx in DENY if rx.search(text)]
     destroy = [why for why, rx in DESTRUCTIVE if rx.search(text)]
     change = [why for why, rx in CHANGE if rx.search(text)]

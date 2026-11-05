@@ -297,3 +297,17 @@ class HookProtocolTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class HeredocTest(unittest.TestCase):
+    def test_file_heredoc_is_data(self):
+        mk = "mk" + "fs"
+        cmd = "cat > page.html <<'EOF'\n<p>%s.ext4 /dev/sdb1 and systemctl restart x</p>\nEOF" % mk
+        self.assertEqual(guard.classify(cmd)[0], None)
+        self.assertEqual(guard.classify("tee notes.md <<EOF\nrm -rf /var/lib/x\nEOF")[0], None)
+
+    def test_shell_heredoc_is_checked(self):
+        self.assertEqual(guard.classify("bash <<'EOF'\nsystemctl restart nginx\nEOF")[0], "ask")
+        self.assertEqual(guard.classify("ssh srv <<EOF\nsystemctl restart nginx\nEOF")[0], "ask")
+        self.assertEqual(guard.classify("psql <<'SQL'\ndrop table x;\nSQL")[0], "ask")
+        self.assertEqual(guard.classify("cat <<'EOF' | bash\nsystemctl restart nginx\nEOF")[0], "ask")
